@@ -8,14 +8,106 @@
 
   <title>日記</title>
 </head>
-<body class="bg-primary-subtle">
+<body class="bg-light">
    <header>
-      <nav class="navbar bg-primary" data-bs-theme="dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#">日記へようこそ</a>
-        </div>
-      </nav>
+      <nav class="navbar bg-danger" data-bs-theme="dark">
+  <div class="container-fluid justify-content-center">
+    <a class="navbar-brand fw-bold fs-3" href="#">
+      日記へようこそ
+    </a>
+  </div>
+</nav>
     </header>
+  <main class="container mt-4">
+
+  <div class="card mb-3">
+  <div class="card-body">
+    <h5>日記を書く</h5>
+
+    <input
+      type="text"
+      class="form-control mb-2"
+      placeholder="タイトル">
+
+    <textarea
+      class="form-control mb-2"
+      rows="5"
+      placeholder="今日の出来事を書いてください"></textarea>
+
+    <button class="btn btn-primary"onclick="saveDiary()">
+      保存
+    </button>
+  </div>
+</div>
+
+  </main>
+
+  <script>
+function saveDiary() {
+  const title = document.querySelector("input").value;
+  const content = document.querySelector("textarea").value;
+
+  if (!title || !content) {
+    alert("タイトルと内容を入力してください");
+    return;
+  }
+
+  const diaries = JSON.parse(localStorage.getItem("diaries")) || [];
+
+  diaries.unshift({
+  id: Date.now(),
+  title: title,
+  content: content,
+  date: new Date().toLocaleDateString()
+});
+
+  localStorage.setItem("diaries", JSON.stringify(diaries));
+
+  document.querySelector("input").value = "";
+  document.querySelector("textarea").value = "";
+
+  displayDiaries();
+}
+
+function deleteDiary(id) {
+  let diaries = JSON.parse(localStorage.getItem("diaries")) || [];
+
+  diaries = diaries.filter(diary => diary.id !== id);
+
+  localStorage.setItem("diaries", JSON.stringify(diaries));
+
+  displayDiaries();
+}
+
+function displayDiaries() {
+  const diaries = JSON.parse(localStorage.getItem("diaries")) || [];
+  const main = document.querySelector("main");
+
+  const oldCards = document.querySelectorAll(".saved");
+  oldCards.forEach(el => el.remove());
+
+  diaries.forEach(diary => {
+    const div = document.createElement("div");
+    div.className = "card mb-3 saved";
+
+    div.innerHTML = `
+  <div class="card-body">
+    <h5 class="card-title">${diary.date} - ${diary.title}</h5>
+    <p class="card-text">${diary.content}</p>
+
+    <button class="btn btn-danger btn-sm"
+      onclick="deleteDiary(${diary.id})">
+      削除
+    </button>
+  </div>
+`;
+
+    main.appendChild(div);
+  });
+}
+
+displayDiaries();
+</script>
 
 </body>
 </html>
